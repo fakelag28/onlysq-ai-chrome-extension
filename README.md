@@ -1,0 +1,1 @@
+# onlysq-ai-chrome-extension
