@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>OnlySQ AI - Настройки</title>
+  <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    body {
+      overflow-y: auto;
+      padding: 30px;
+    }
+    .container {
+      max-width: 500px;
+      margin: 0 auto;
+    }
+    .header {
+      border-bottom: 2px solid var(--color-accent);
+      padding-bottom: 15px;
+      margin-bottom: 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+    .header h1 {
+      font-size: 26px;
+      text-transform: uppercase;
+      letter-spacing: -0.01em;
+    }
+    .form-group {
+      margin-bottom: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .profile-info {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 15px;
+    }
+    .profile-row {
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--color-border-subtle);
+      padding-bottom: 8px;
+    }
+    .profile-label {
+      color: var(--color-text-muted);
+      font-family: "Sora", sans-serif;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .profile-value {
+      font-family: "JetBrains Mono", monospace;
+      font-weight: 500;
+    }
+    .btn-link {
+      background-color: var(--color-surface-2);
+      border: 1px solid var(--color-border);
+      color: var(--color-text) !important;
+      font-family: "Sora", sans-serif;
+      font-weight: 600;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 10px 16px;
+      cursor: pointer;
+      transition: all var(--transition-fast) var(--ease-out);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-decoration: none !important;
+    }
+    .btn-link:hover {
+      background-color: var(--color-surface-3);
+      border-color: var(--color-accent-border);
+      box-shadow: var(--glow-accent);
+      transform: translateY(-1px);
+      color: var(--color-text) !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div>
+        <div class="uppercase-label" style="color: var(--color-accent);">ONLYSQ AI</div>
+        <h1>Авторизация</h1>
+      </div>
+      <div class="mono" style="color: var(--color-text-dim); font-size: 12px;">v1.0</div>
+    </div>
+
+    <div id="alert-container"></div>
+
+    <div class="card card-accent" id="auth-card" style="margin-bottom: 20px;">
+      <h2 style="margin-bottom: 15px; font-size: 18px; text-transform: uppercase;">Введите API ключ</h2>
+      <div style="font-size: 12px; color: var(--color-text-muted); margin-bottom: 15px;">
+        Получите ваш персональный API ключ (sq-...) в личном кабинете на сайте <a href="https://my.onlysq.ru" target="_blank" style="color: var(--color-accent);">my.onlysq.ru</a>.
+      </div>
+
+      <div class="form-group">
+        <label class="uppercase-label" for="api-token">Токен API (sq-...)</label>
+        <input type="password" id="api-token" placeholder="sq-...">
+      </div>
+
+      <button id="btn-save-token" class="primary" style="width: 100%; margin-top: 10px;">
+        <span class="material-symbols-outlined">save</span>Сохранить и проверить
+      </button>
+    </div>
+
+    <div class="card" id="status-card" style="display: none;">
+      <div class="card-accent"></div>
+      <h2 style="margin-bottom: 15px; font-size: 18px; text-transform: uppercase; display: flex; align-items: center; gap: 10px;">
+        <span class="material-symbols-outlined" style="color: var(--color-success);">check_circle</span>
+        Статус подключения
+      </h2>
+
+      <div class="profile-info">
+        <div class="profile-row">
+          <span class="profile-label">Состояние</span>
+          <span class="profile-value" style="color: var(--color-success); font-weight: bold;">ПОДКЛЮЧЕН</span>
+        </div>
+        <div class="profile-row">
+          <span class="profile-label">Активный токен</span>
+          <span class="profile-value" id="active-api-key" style="max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">-</span>
+        </div>
+        <div style="margin-top: 10px;">
+          <button id="btn-logout" style="width: 100%; border-color: var(--color-error-border); color: var(--color-error);">
+            <span class="material-symbols-outlined">logout</span>Выйти из системы
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <div style="margin-top: 25px; display: flex; gap: 10px;">
+      <a href="https://github.com/fakelag28/onlysq-ai-chrome-extension" target="_blank" class="btn-link" style="flex: 1;">
+        <span class="material-symbols-outlined" style="font-size: 16px !important;">code</span>GitHub проекта
+      </a>
+      <a href="https://onlysq.ru/" target="_blank" class="btn-link" style="flex: 1;">
+        <span class="material-symbols-outlined" style="font-size: 16px !important;">language</span>Сайт OnlySQ
+      </a>
+    </div>
+  </div>
+
+  <script src="../js/options.js"></script>
+</body>
+</html>

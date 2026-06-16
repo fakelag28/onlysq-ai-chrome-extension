@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Панель</title>
+  <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    body {
+      display: flex;
+      height: 100vh;
+      width: 100vw;
+      margin: 0;
+      padding: 0;
+      background-color: var(--color-bg);
+    }
+    .sidebar {
+      width: var(--sidebar-width);
+      border-right: 1px solid var(--color-border);
+      background-color: var(--color-surface);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      transition: width var(--transition-base) var(--ease-out);
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+    .sidebar.collapsed {
+      width: 0px;
+      border-right: none;
+    }
+    .sidebar-header {
+      padding: 10px;
+      border-bottom: 1px solid var(--color-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 38px;
+    }
+    .sidebar-header .title {
+      font-family: "Sora", sans-serif;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 12px;
+      color: var(--color-accent);
+      white-space: nowrap;
+    }
+    .sidebar-menu {
+      flex: 1;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .chat-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 10px;
+      border: 1px solid var(--color-border-subtle);
+      background-color: var(--color-surface-2);
+      cursor: pointer;
+      font-size: 12px;
+      transition: all var(--transition-fast) var(--ease-out);
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      position: relative;
+    }
+    .chat-item:hover {
+      border-color: var(--color-accent-border);
+      background-color: var(--color-surface-3);
+    }
+    .chat-item.active {
+      border-color: var(--color-accent);
+      background-color: var(--color-surface-4);
+    }
+    .chat-item.active::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background-color: var(--color-accent);
+    }
+    .chat-item-title {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .btn-delete-chat {
+      background: none;
+      border: none;
+      padding: 2px;
+      color: var(--color-text-faint);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+    }
+    .btn-delete-chat:hover {
+      color: var(--color-error);
+      box-shadow: none;
+      transform: none;
+    }
+    .sidebar-footer {
+      padding: 8px;
+      border-top: 1px solid var(--color-border);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .sidebar-footer-btn {
+      width: 100%;
+      justify-content: flex-start;
+      padding: 6px 10px;
+      font-size: 10px;
+    }
+    .workspace {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      background-color: var(--color-bg);
+      overflow: hidden;
+    }
+    .navbar {
+      height: 38px;
+      border-bottom: 1px solid var(--color-border);
+      background-color: var(--color-surface);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 12px;
+      flex-shrink: 0;
+    }
+    .navbar-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .model-selector {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px;
+      padding: 4px 8px;
+      background-color: var(--color-surface-3);
+      border: 1px solid var(--color-border);
+      color: var(--color-accent);
+      cursor: pointer;
+    }
+    .chat-messages {
+      flex: 1;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .msg {
+      display: flex;
+      flex-direction: column;
+      max-width: 95%;
+      padding: 8px 12px;
+      border: 1px solid var(--color-border);
+      position: relative;
+      animation: slideUp var(--transition-base) var(--ease-out) both;
+    }
+    .msg.user {
+      align-self: flex-end;
+      background-color: var(--color-surface-3);
+      border-right: 2px solid var(--color-accent);
+    }
+    .msg.assistant {
+      align-self: flex-start;
+      background-color: var(--color-surface);
+      border-left: 2px solid var(--color-text-dim);
+    }
+    .msg.system {
+      align-self: center;
+      background-color: var(--color-bg-soft);
+      border: 1px dashed var(--color-border-strong);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px;
+      color: var(--color-accent-soft);
+      max-width: 95%;
+    }
+    .msg-header {
+      font-family: "Sora", sans-serif;
+      font-weight: 700;
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 4px;
+      color: var(--color-text-muted);
+    }
+    .msg.user .msg-header {
+      color: var(--color-accent);
+      text-align: right;
+    }
+    .msg-content {
+      font-size: 12px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+    }
+    .think-block {
+      background-color: var(--color-surface-2);
+      border: 1px solid var(--color-border);
+      border-left: 2px solid var(--color-warning);
+      padding: 8px 10px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px;
+      color: var(--color-text-muted);
+      margin-bottom: 8px;
+    }
+    .think-header {
+      font-family: "Sora", sans-serif;
+      font-weight: 600;
+      font-size: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--color-warning);
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .chat-input-area {
+      border-top: 1px solid var(--color-border);
+      background-color: var(--color-surface);
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .context-selector-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .context-chip {
+      background-color: var(--color-surface-2);
+      border: 1px solid var(--color-border);
+      padding: 4px 8px;
+      font-family: "Sora", sans-serif;
+      font-weight: 600;
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--color-text-muted);
+      cursor: pointer;
+      transition: all var(--transition-fast) var(--ease-out);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .context-chip:hover {
+      border-color: var(--color-border-strong);
+      color: var(--color-text);
+    }
+    .context-chip.active {
+      border-color: var(--color-accent);
+      background-color: var(--color-accent-bg);
+      color: var(--color-accent);
+      box-shadow: var(--glow-accent);
+    }
+    .input-row {
+      display: flex;
+      gap: 8px;
+      align-items: flex-end;
+    }
+    .chat-input {
+      flex: 1;
+      resize: none;
+      height: 32px;
+      min-height: 32px;
+      max-height: 120px;
+      font-family: "Inter", sans-serif;
+      font-size: 12px;
+      line-height: 1.4;
+      padding: 6px 10px;
+    }
+    .btn-send {
+      height: 32px;
+      width: 32px;
+      padding: 0;
+      flex-shrink: 0;
+    }
+    .screenshot-preview {
+      position: relative;
+      width: 60px;
+      height: 38px;
+      border: 1px solid var(--color-accent-border);
+      background-size: cover;
+      background-position: center;
+      margin-top: 3px;
+    }
+    .screenshot-preview-close {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      background-color: var(--color-error);
+      color: #000000;
+      border: none;
+      cursor: pointer;
+      width: 12px;
+      height: 12px;
+      font-size: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+    .agent-log {
+      font-family: "JetBrains Mono", monospace;
+      color: var(--color-success);
+      font-size: 11px;
+      margin-top: 2px;
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar collapsed" id="sidebar">
+    <div class="sidebar-header">
+      <span class="title">Мои чаты</span>
+    </div>
+    
+    <div style="padding: 8px;">
+      <button id="btn-new-chat" class="primary" style="width: 100%; font-size: 10px; padding: 6px 10px;">
+        <span class="material-symbols-outlined" style="font-size: 14px !important;">add</span>
+        <span class="btn-text">Новый чат</span>
+      </button>
+    </div>
+
+    <div class="sidebar-menu scroll-container" id="chats-list-container">
+    </div>
+
+    <div class="sidebar-footer">
+      <button id="btn-options" class="sidebar-footer-btn" style="font-size: 10px; padding: 6px 10px;">
+        <span class="material-symbols-outlined" style="font-size: 14px !important;">settings</span>
+        <span class="btn-text">Настройки</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="workspace">
+    <div class="navbar">
+      <div style="display: flex; align-items: center;">
+        <button id="btn-collapse" class="material-symbols-outlined" style="background: none; border: none; color: var(--color-text-muted); cursor: pointer; padding: 4px; margin-right: 6px; display: inline-flex; align-items: center; justify-content: center; font-size: 18px !important;">menu</button>
+        <span id="active-chat-title" style="color: var(--color-text); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; vertical-align: middle;">Без названия</span>
+      </div>
+      <div class="navbar-controls">
+        <div class="custom-select" id="reasoning-select-container">
+          <div class="custom-select-trigger" id="reasoning-select-trigger" style="min-width: 90px;">
+            <span id="reasoning-select-value">Medium</span>
+            <span class="material-symbols-outlined" style="font-size: 14px !important;">expand_more</span>
+          </div>
+          <div class="custom-select-dropdown" id="reasoning-select-dropdown" style="min-width: 110px;">
+            <div class="custom-select-option" data-value="minimal">Minimal</div>
+            <div class="custom-select-option" data-value="low">Low</div>
+            <div class="custom-select-option selected" data-value="medium">Medium</div>
+            <div class="custom-select-option" data-value="high">High</div>
+          </div>
+        </div>
+
+        <div class="custom-select" id="model-select-container">
+          <div class="custom-select-trigger" id="model-select-trigger">
+            <span id="model-select-value">gemini-3.5-flash</span>
+            <span class="material-symbols-outlined" style="font-size: 14px !important;">expand_more</span>
+          </div>
+          <div class="custom-select-dropdown" id="model-select-dropdown">
+            <div class="custom-select-option selected" data-value="gemini-3.5-flash">gemini-3.5-flash</div>
+            <div class="custom-select-option" data-value="gpt-5-mini">gpt-5-mini</div>
+            <div class="custom-select-option" data-value="deepseek-r1">deepseek-r1</div>
+            <div class="custom-select-option" data-value="claude-sonnet-4-6">claude-sonnet-4-6</div>
+            <div class="custom-select-option" data-value="flux">flux (Image)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="chat-messages scroll-container" id="messages-container">
+      <div class="msg system">
+        <div class="msg-content">Добро пожаловать. Настройте API токен в параметрах, выберите нужную модель и контекст общения.</div>
+      </div>
+    </div>
+
+    <div class="chat-input-area">
+      <div class="context-selector-bar">
+        <button class="context-chip active" id="chip-none" data-context="none">
+          <span class="material-symbols-outlined" style="font-size: 14px !important;">chat_bubble</span>Без контекста
+        </button>
+        <button class="context-chip" id="chip-page" data-context="page">
+          <span class="material-symbols-outlined" style="font-size: 14px !important;">article</span>Текущая вкладка
+        </button>
+        <button class="context-chip" id="chip-all-tabs" data-context="all-tabs">
+          <span class="material-symbols-outlined" style="font-size: 14px !important;">chrome_reader_mode</span>Все вкладки
+        </button>
+        <button class="context-chip" id="chip-vision" data-context="vision">
+          <span class="material-symbols-outlined" style="font-size: 14px !important;">image</span>Скриншот (Vision)
+        </button>
+        <button class="context-chip" id="chip-agent" data-context="agent" style="border-style: dashed;">
+          <span class="material-symbols-outlined" style="font-size: 14px !important;">memory</span>Агентный режим
+        </button>
+      </div>
+
+      <div id="preview-container" style="display: none; align-items: center; gap: 10px;">
+        <div class="screenshot-preview" id="screenshot-preview-img">
+          <button class="screenshot-preview-close" id="btn-clear-screenshot">×</button>
+        </div>
+        <span class="mono" style="font-size: 11px; color: var(--color-success);">Снимок экрана готов</span>
+      </div>
+
+      <div class="input-row">
+        <textarea id="chat-input-textarea" class="chat-input" placeholder="Введите ваш вопрос (Ctrl+Enter для отправки)..."></textarea>
+        <button id="btn-send-message" class="primary btn-send">
+          <span class="material-symbols-outlined">send</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast-container" style="position: fixed; bottom: 90px; left: 16px; right: 16px; z-index: 10000; display: flex; flex-direction: column; gap: 8px; pointer-events: none;"></div>
+
+  <script src="../js/sidepanel.js"></script>
+</body>
+</html>
